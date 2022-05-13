@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import top.defaults.colorpicker.ColorPickerPopup
@@ -41,17 +40,11 @@ class MainActivity : AppCompatActivity() {
             showBrushSizeChooserDialog()
         }
 
-        //TODO вынести в отдельный метод(1)
         tvPickColor?.setOnClickListener { view ->
             run {
-                showColorWheel(view)
-                tvPickColor?.background = ContextCompat.getDrawable(
-                    this,
-                    R.drawable.pallet_pressed
-                )
-                mImageButtonCurrentPaint?.setImageDrawable(
-                    ContextCompat.getDrawable(this, R.drawable.pallet_normal)
-                )
+                pickUpColorFromWheel(view)
+
+                highlightPickedColorButton(view)
             }
         }
 
@@ -88,26 +81,47 @@ class MainActivity : AppCompatActivity() {
             val colorTag = imageButton.tag.toString()
             drawingView?.setColor(colorTag)
 
-            //TODO вынести в отдельный метод(2)
-            imageButton.setImageDrawable(
-                ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
-            )
+            highlightPickedColorButton(view)
 
-            mImageButtonCurrentPaint?.setImageDrawable(
-                ContextCompat.getDrawable(this, R.drawable.pallet_normal)
-            )
-
-            tvPickColor?.background = ContextCompat.getDrawable(
-                this,
-                R.drawable.pallet_normal
-            )
-
-            mImageButtonCurrentPaint = view
         }
     }
 
+    //выделяет кнопку выбранного цвета, снимает выделение с прошлой
+    private fun highlightPickedColorButton(clickedView: View) {
+
+        when (clickedView) {
+            is TextView -> {
+                tvPickColor?.background = ContextCompat.getDrawable(
+                    this,
+                    R.drawable.pallet_pressed
+                )
+                mImageButtonCurrentPaint?.setImageDrawable(
+                    ContextCompat.getDrawable(this, R.drawable.pallet_normal)
+                )
+                mImageButtonCurrentPaint = null
+            }
+            is ImageButton -> {
+                clickedView.setImageDrawable(
+                    ContextCompat.getDrawable(this, R.drawable.pallet_pressed)
+                )
+
+                mImageButtonCurrentPaint?.setImageDrawable(
+                    ContextCompat.getDrawable(this, R.drawable.pallet_normal)
+                )
+
+                tvPickColor?.background = ContextCompat.getDrawable(
+                    this,
+                    R.drawable.pallet_normal
+                )
+                mImageButtonCurrentPaint = clickedView
+            }
+        }
+
+
+    }
+
     //выбор цвета колесом
-    private fun showColorWheel(view: View) {
+    private fun pickUpColorFromWheel(view: View) {
 
         ColorPickerPopup.Builder(this).initialColor(drawingView!!.color)
             .enableBrightness(false)
