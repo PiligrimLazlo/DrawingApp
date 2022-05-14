@@ -1,13 +1,17 @@
 package ru.pl.kidsdrawingapp
 
+import android.Manifest
+import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import top.defaults.colorpicker.ColorPickerPopup
@@ -20,11 +24,34 @@ class MainActivity : AppCompatActivity() {
     //для колеса выбора
     private var tvPickColor: TextView? = null
 
+    //выбор картинки
+    private var btnGallery: ImageButton? = null
+    private var galleryResultLauncher: ActivityResultLauncher<Array<String>> =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            permissions.entries.forEach {
+                val permissionName = it.key
+                val isGranted = it.value
+                if (isGranted)
+                    Toast.makeText(
+                        this, "Разрешение для галлереи выдано",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                else {
+                    if (permissionName.equals(Manifest.permission.READ_EXTERNAL_STORAGE))
+                        Toast.makeText(
+                            this, "Разрешение для галлереи не выдано",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                }
+            }
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        btnGallery = findViewById(R.id.ibGallery)
         tvPickColor = findViewById(R.id.tvPickColor)
         drawingView = findViewById(R.id.drawingView)
         drawingView?.setSizeForBrush(20f)
@@ -41,13 +68,43 @@ class MainActivity : AppCompatActivity() {
         }
 
         tvPickColor?.setOnClickListener { view ->
-            run {
-                pickUpColorFromWheel(view)
-
-                highlightPickedColorButton(view)
-            }
+            pickUpColorFromWheel(view)
+            highlightPickedColorButton(view)
         }
 
+        btnGallery?.setOnClickListener {
+            selectStoragePermission();
+        }
+
+    }
+
+
+    private fun selectStoragePermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        ) {
+            showRationaleDialog(
+                "Разрешение на использование галереи не получено!",
+                "Ошибка доступа к галерее"
+            )
+        } else {
+            galleryResultLauncher.launch(arrayOf(
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                //TODO добавить writing external storage permission
+                ))
+        }
+    }
+
+    private fun showRationaleDialog(title: String, message: String) {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage(message)
+            .setTitle(title)
+            .setCancelable(false)
+            .setPositiveButton("ОК") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create().show()
     }
 
     //выбор размера кисти
