@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/image"/>
+            tools:src="@drawable/image"/>
 
         <ru.pl.kidsdrawingapp.DrawingView
             android:id="@+id/drawingView"
@@ -167,6 +167,33 @@
             android:layout_margin="5dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_brush"
+            />
+
+        <ImageButton
+            android:id="@+id/ibUndo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_undo"
+            />
+
+        <ImageButton
+            android:id="@+id/ibRedo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_redo"
+            />
+
+        <ImageButton
+            android:id="@+id/ibSave"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="5dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_save"
             />
 
 
